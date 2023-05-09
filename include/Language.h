@@ -61,7 +61,7 @@ public:
      * Input parameter
      * @return A reference to this object
      */
-    Language operator=(Language orig);
+    Language& operator=(const Language &orig);
 
     /**
      * @brief Returns the identifier of this language object.
@@ -222,6 +222,10 @@ private:
     BigramFreq* _vectorBigramFreq; ///< Dynamic array of BigramFreq
     int _size; ///< Number of elements in _vectorBigramFreq
     static const std::string MAGIC_STRING_T; ///< A const string with the magic string for text files
+    // métodos privados para la gestión de memoria dinámica
+    BigramFreq* allocate(int n);
+    void deallocate(BigramFreq * ptr);
+    void copy(const BigramFreq *larray);
 };
 
 #endif /* LANGUAGE_H */
