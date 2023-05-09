@@ -18,25 +18,55 @@
 using namespace std;
 
 const string Language::MAGIC_STRING_T="MP-LANGUAGE-T-1.0";
-
+// constructor sin parámetros
 Language::Language(){
     this->_languageId = "unknown";
     this->_size = 0;
 }
-
+// constructor con parámetros
 Language::Language(int numberBigrams){
     if(numberBigrams < 0){
-        throw std::out_of_range("const char Bigram::at(int index) invalid position (" + std::to_string(numberBigrams) + ")"
-                    + " and it can only be 0 or 1");
+        throw std::out_of_range("Language::Language(int numberBigrams) invalid position (" + std::to_string(numberBigrams) + ") numberBigram can´t be negative" );
     }
     
     this->_size = numberBigrams;
+    // reservamos memoria 
+    this->_vectorBigramFreq = allocate(this->getSize());
     this->_languageId = "unknown";
     for(int i = 0; i < numberBigrams; i++){
         Bigram b;
         this->_vectorBigramFreq[i].setBigram(b);
         this->_vectorBigramFreq[i].setFrequency(0);
     }
+}
+// costructor de copia
+Language::Language(const Language &orig){
+    this->_languageId = orig.getLanguageId();
+    this->_size = orig.getSize();
+    if(this->getSize() > 0 ){ 
+        // reservamos memoria 
+        this->_vectorBigramFreq = allocate(this->getSize());
+        this->copy(orig);
+//        for(int i = 0; i < this->getSize(); i++){
+//            this->at(i) = orig.at(i);
+//        }
+    }
+}
+
+Language::~Language(){
+    deallocate(this->_vectorBigramFreq);
+}
+
+Language& Language::operator=(const Language &orig){
+    if(this != &orig){
+        if(this->getSize() <= orig.getSize()){ // si no hay espacio, se reserva mas
+            deallocate(this->_vectorBigramFreq);
+            this->_vectorBigramFreq = allocate(orig.getSize());
+            this->_size = orig.getSize();
+        }
+        this->copy(orig);
+    }
+    return *this;
 }
 
 const std::string& Language::getLanguageId() const{
@@ -166,11 +196,12 @@ void Language::load( const char fileName[]){
     this->setLanguageId(language);
     fi >> freq;
     
-//    if(freq > Language::DIM_VECTOR_BIGRAM_FREQ){
-//        throw std::out_of_range("void Language::load(char fileName[]): the number of bigrams in the given file, cannot be allocated in this Language because it exceeds the maximum capacity");
-//    }
+    if(freq < 0){
+        throw std::out_of_range("void Language::load(char fileName[]): the number of bigrams in the given file, cannot be negative");
+    }
   
     this->_size = freq;
+   
     string bigram_text_aux = "";
     int freq_aux = 0;
     
@@ -217,6 +248,33 @@ void Language::swapElements(int first, int second){
         at(second) = temp;
     }
 }
+
+// implementación de los métodos privados
+
+BigramFreq* Language::allocate(int n){
+    BigramFreq *ptr = nullptr;
+    if(n > 0){
+        ptr = new BigramFreq[n];
+    }
+    return ptr;
+}
+
+void Language::deallocate(BigramFreq * ptr){
+    if(ptr != nullptr){
+        delete [] ptr;
+        ptr = nullptr;
+    }
+}
+
+void Language::copy(const Language &larray){
+    if(this->getSize() > 0){
+        for(int i = 0; i < this->getSize(); i++){
+            this->at(i) = larray.at(i);
+        }
+    }
+}
+
+
 
 
 
