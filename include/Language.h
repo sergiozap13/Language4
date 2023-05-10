@@ -225,7 +225,7 @@ private:
     // métodos privados para la gestión de memoria dinámica
     BigramFreq* allocate(int n);
     void deallocate(BigramFreq * ptr);
-    void copy(const Language &larray);
+    void copyArray(const Language &larray);
 };
 
 #endif /* LANGUAGE_H */
